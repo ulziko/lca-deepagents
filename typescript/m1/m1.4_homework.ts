@@ -48,7 +48,7 @@ import { model } from "../models.js";
 //     "else, ... .";
 // ════════════════════════════════════════════════════════════════════════
 
-const SYSTEM_PROMPT = "TODO 1: replace this with your own domain-scoping system prompt.";
+const SYSTEM_PROMPT = "You are a Language translator agent Simply translate from Mongolian to English. And you should not answer anything outside of the language translation domain. If asked about anything else, you should say that you cannot help with that and redirect the user back to the language translation domain.";
 
 const agent = createDeepAgent({
   model,
@@ -65,7 +65,18 @@ const agent = createDeepAgent({
 async function runTestPrompts() {
   // TODO 2: invoke `agent` with one in-domain prompt and one
   // out-of-domain prompt, and print each response.
-  throw new Error("TODO 2: see the comment block above");
+  agent.invoke({
+    messages: [{ role: "user", content: "Монгол хүний эрхэм баялаг нь даруу дөлгөөн үнэнч шударга байдал юм." }],
+  }).then((result) => {
+    console.log("In-domain response:", result.messages.at(-1)?.text);
+  });
+
+  agent.invoke({
+    messages: [{ role: "user", content: "Who is chingiss khaan? " }],
+  }).then((result) => {
+    console.log("Out-of-domain response:", result.messages.at(-1)?.text);
+  });
+
 }
 
 await runTestPrompts();
