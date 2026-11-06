@@ -20,7 +20,7 @@ other remote deployment.
 import time
 
 import pandas as pd
-from langchain_anthropic import ChatAnthropic
+from langchain.chat_models import init_chat_model
 from langchain_core.tools import tool
 
 from deepagents import create_deep_agent
@@ -52,7 +52,10 @@ def analyze_sales(group_by: str = "region") -> str:
     return "\n".join(lines)
 
 
-model = ChatAnthropic(model="claude-haiku-4-5")
+# Separate environment, so no shared models.py: edit this string to switch providers.
+# For providers other than Anthropic or OpenAI, also run `uv add <provider package>`
+# in this folder. API keys still load from the shared .env (see langgraph.json).
+model = init_chat_model("anthropic:claude-haiku-4-5")
 
 # langgraph.json points at this module-level variable: "./agent.py:graph"
 graph = create_deep_agent(model=model, tools=[analyze_sales])
