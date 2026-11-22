@@ -1,4 +1,5 @@
 # python/m1/m1.4_homework.py
+
 """M1.4 Homework: Scope the Agent to One Domain.
 
 THE IDEA
