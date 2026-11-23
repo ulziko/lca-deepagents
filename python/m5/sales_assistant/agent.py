@@ -17,6 +17,7 @@ from pathlib import Path
 from deepagents import create_deep_agent
 from deepagents.backends import FilesystemBackend
 from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_mcp_adapters.sessions import StreamableHttpConnection
 from langchain_quickjs import CodeInterpreterMiddleware
 from subagents import build_subagents
 from tools.chart import render_pie_chart
@@ -34,7 +35,7 @@ SYSTEM_PROMPT = (
     "from your memory) and use the matching playbook from /skills/ for each task."
 )
 
-MAIL_SERVER = {"transport": "streamable-http", "url": "http://127.0.0.1:5002/mcp"}
+MAIL_SERVER: StreamableHttpConnection = {"transport": "streamable_http", "url": "http://127.0.0.1:5002/mcp"}
 
 _enable_search = bool(os.environ.get("TAVILY_API_KEY"))
 if not _enable_search:
@@ -48,7 +49,7 @@ async def make_graph():
     mail_tools = await client.get_tools()
     return create_deep_agent(
         model=strong_model,
-        tools=[markdown_to_html, render_pie_chart] + mail_tools,
+        tools=[markdown_to_html, render_pie_chart],
         system_prompt=SYSTEM_PROMPT,
         subagents=build_subagents(_backend, enable_search=_enable_search, mail_tools=mail_tools),
         skills=["/skills"],
