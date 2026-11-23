@@ -53,7 +53,7 @@ const SYSTEM_PROMPT = "You are a Language translator agent Simply translate from
 const agent = createDeepAgent({
   model,
   systemPrompt: SYSTEM_PROMPT,
-  name: "Homework_Agent",
+  name: "Translator_Agent",
 });
 
 // ════════════════════════════════════════════════════════════════════════

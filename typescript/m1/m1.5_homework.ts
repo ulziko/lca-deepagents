@@ -29,6 +29,7 @@ import { tool } from "langchain";
 import { createDeepAgent } from "deepagents";
 
 import { model } from "../models.js";
+import { sendGmail,ask } from "./sendmail.js";
 
 // ════════════════════════════════════════════════════════════════════════
 // TODO 1: Define your own custom tool.
@@ -54,14 +55,34 @@ import { model } from "../models.js";
 //   );
 // ════════════════════════════════════════════════════════════════════════
 
-const yourCustomTool = tool(
-  ({ query }) => {
-    throw new Error("TODO 1: see the comment block above");
+
+const emailSender = tool(
+  async ({to, subject, text}) => {
+    await sendGmail(to,subject,text);
+    return `email sent to ${to}`;
   },
   {
-    name: "your_custom_tool",
-    description: "TODO 1: replace this description and body with your own tool.",
-    schema: z.object({ query: z.string() }),
+    name: "send_email",
+    description: "Sends an email to a recipient.",
+    schema: z.object({
+      to: z.string(),
+      subject: z.string(),
+      text: z.string(),
+    }),
+  }
+);
+
+const userPrompter = tool(
+  async ({prompt}) => {
+    const result = await ask(prompt);
+    return `user responds: ${result}`;
+  },
+  {
+    name: "ask_user",
+    description: "Asks the user a question and returns their response.",
+    schema: z.object({
+      prompt: z.string()
+    }),
   }
 );
 
@@ -74,26 +95,27 @@ const yourCustomTool = tool(
 // readSql.
 // ════════════════════════════════════════════════════════════════════════
 
-const SYSTEM_PROMPT = "TODO 2: replace this with your own system prompt.";
+const SYSTEM_PROMPT = "You are a professional email-writing assistant. Write respectful, clear, well-structured emails. First use the ask_user tool to obtain the recipient address and the user's writing goal. Draft an appropriate subject and body, then use ask_user to ask the user to approve or revise the draft. Only after explicit approval use the send_email tool with the recipient, subject, and body.";
 
-// Guards against running with an unfilled placeholder; the filled
-// reference doesn't need this since there's no placeholder text left.
-if (yourCustomTool.description.includes("TODO 1")) {
-  throw new Error("TODO 1: see the comment block above");
-}
-if (SYSTEM_PROMPT.includes("TODO 2")) {
-  throw new Error("TODO 2: see the comment block above");
-}
+// // Guards against running with an unfilled placeholder; the filled
+// // reference doesn't need this since there's no placeholder text left.
+// if (emailSender.description.includes("TODO 1")) {
+//   throw new Error("TODO 1: see the comment block above");
+// }
+
+// if (SYSTEM_PROMPT.includes("TODO 2")) {
+//   throw new Error("TODO 2: see the comment block above");
+// }
 
 const agent = createDeepAgent({
   model,
   name: "Homework_Agent",
-  tools: [yourCustomTool],
+  tools: [emailSender,userPrompter],
   systemPrompt: SYSTEM_PROMPT,
 });
 
 const result = await agent.invoke({
-  messages: [{ role: "user", content: "Ask your agent a question that needs your tool." }],
+  messages: [{ role: "user", content: "I want to write a appointment scheduling mail to a professor" }],
 });
 
 console.log(result.messages.at(-1)?.text);

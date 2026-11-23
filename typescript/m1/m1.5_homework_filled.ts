@@ -51,7 +51,7 @@ list the games you do know.`;
 
 const agent = createDeepAgent({
   model,
-  name: "Homework_Agent",
+  name: "Tr",
   tools: [lookupRetroGameFact],
   systemPrompt: SYSTEM_PROMPT,
 });
@@ -61,3 +61,6 @@ const result = await agent.invoke({
 });
 
 console.log(result.messages.at(-1)?.text);
+
+
+// TODO: Debug gmail app
